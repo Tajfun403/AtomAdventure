@@ -1,3 +1,5 @@
+import { World } from "./World";
+
 /**
  * Base abstract class for all Actors that can be spawned in the Game World.
  */
@@ -12,9 +14,14 @@ export abstract class Actor {
     public MaxAcceleration: number = 200;
     public MaxVelocity: number = 200;
     public ZIndex: number = 0;
+    public World: World = null as any;
 
     public constructor(backingDiv: HTMLDivElement | null = null) {
         this.BackingDiv = backingDiv;
+    }
+
+    public GetWorld(): World {
+        return this.World;
     }
 
     public Move(moveVector: [number, number]): void {

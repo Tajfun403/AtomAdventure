@@ -14,7 +14,24 @@ export class World {
         }
     }
 
-    public SpawnActor(actor: Actor) {
+    public SpawnActor(actor: Actor): Actor {
+        actor.World = this;
+        // spawn the backing div for the actor, and set it to the correct location and image
+        const backingDiv = document.createElement("div");
+        backingDiv.style.position = "absolute";
+        document.body.appendChild(backingDiv);
+        actor.BackingDiv = backingDiv;
+        actor.UpdateBackingProps();
         this.AllActors.push(actor);
+        return actor;
+    }
+
+    public GetPlayerActor(): Actor | null {
+        if (!this.CurrentPlayerController) return null;
+        return this.CurrentPlayerController.PossesedPawn;
+    }
+
+    public GetCurrentPlayerController(): PlayerController | null {
+        return this.CurrentPlayerController;
     }
 }

@@ -1,12 +1,12 @@
 # Tables
 - Table: Players
     - GUID
-    - Prestige
+    - Prestige: int
 - Table: Items
-    - ID
-    - PrettyName
-    - Image
-    - Description
+    - ID: int autoincrement
+    - PrettyName: string
+    - Image: string
+    - Description: string
     - Value
 - PlayersItems
 
@@ -21,7 +21,9 @@
     - Get all inventory items belonging to given player GUID
 - DELETE /inventory/:id
     - Delete given instanced item (it is bound to a player automatically)
-- PATCH /player/money/:count
-    - Change player's money
+- Post /player/
+    - Create a new player
+- PATCH /player/
+    - Change player's props
 - POST /inventory
     - Send a new item to this player's inventory
