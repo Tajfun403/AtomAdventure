@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+:root {
+  --soft-violet: #b077e0;
+  --dark-violet: #8954b6;
+  --disabled-gray: #555;
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -21,6 +26,7 @@ html, body {
   font-family: 'ZenDots';
   font-size: 24px;
   color: #fff;
+  margin-bottom: 20px;
 }
 
 body {
@@ -39,15 +45,51 @@ body {
   color: #fff;
   padding: 8px 12px;
   outline: none;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.Text {
+  font-size: 20px;
+}
+
+.RightAlign {
+  display: block;
+  margin-left: auto;
+}
+
+.Button {
+  background-color: var(--soft-violet);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.Button:hover {
+  background-color: var(--dark-violet);
+  animation: 300ms;
+}
+
+.Button:disabled {
+  background-color: var(--disabled-gray);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ActionButton {
+
 }
 
 .InputTextBox::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.Button {
 
-}
 
 .Label {
 
@@ -58,6 +100,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100%;
+  flex-direction: column;
 }
 
 @keyframes fadeIn {

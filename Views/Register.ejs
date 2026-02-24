@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('Partials/Head.ejs') %>
+    <body>
+        <div class="MainContent">
+            <div class="FullCentering">
+                <div>
+                    <div class="Label Subtitle">How should we call you?</div>
+                    <input type="text" id="UsernameInput" class="Text InputTextBox" placeholder="Enter your name here..." />
+                    <button id="StartButton" class="Button RightAlign">Start Game</button>
+                </div>
+            </div>
+        </div>
+    <%- include('Partials/Scripts.ejs') %>
+    <script>
+        const textBox = document.getElementById('UsernameInput');
+        const startButton = document.getElementById('StartButton');
+
+        textBox.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                startButton.click();
+            }
+        });
+
+        textBox.addEventListener('input', () => {
+            startButton.disabled = textBox.value.trim() === '';
+        });
+
+        startButton.addEventListener('click', async () => {
+            try {
+                await createPlayer();
+                await TransitionToPage('/game');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create player. Please try again.');
+            }
+        });
+    </script>
+    </body>
+</html>

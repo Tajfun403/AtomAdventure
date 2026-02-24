@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
-import { PlayerItem } from "../Models/PlayerItem.js";
-import { Item } from "../Models/Item.js";
-import { Player } from "../Models/Player.js";
+import { PlayerItem } from "../Models/PlayerItem";
+import { Item } from "../Models/Item";
+import { Player } from "../Models/Player";
 
 export const inventoryRouter = Router();
 

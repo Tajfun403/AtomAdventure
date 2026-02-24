@@ -1,6 +1,6 @@
 import { Controller } from "./Controller";
 import { Pickupable } from "./Pickupable";
-import { AddInventoryEntry } from "../Public/API/InventoryAPI";
+import { AddInventoryEntry } from "../API/InventoryAPI";
 
 /**
  * PlayerController that translates a Player's input into the pawn.

@@ -1,5 +1,5 @@
-import { Actor } from "./Actor.js";
-import { Controller } from "./Controller.js";
+import { Actor } from "./Actor";
+import { Controller } from "./Controller";
 
 /**
  * AI Controller that will simply find the direction towards the player at spawn and will continue moving in that direction.
