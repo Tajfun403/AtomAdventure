@@ -1,0 +1,9 @@
+.GameActor {
+    width: 100px;
+    height: 100px;
+    transition: box-shadow 0.3s ease;
+}
+
+.Glowing {
+    box-shadow: 0 0 20px 60px rgba(152, 76, 214, 0.7);
+}

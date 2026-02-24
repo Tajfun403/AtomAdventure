@@ -11,14 +11,14 @@
 - PlayersItems
 
 # Endpoints
-- GET /players/:guid
-    - Get player with this guid
+- GET /player/
+    - Get currently logged-in player (via cookie)
 - GET /items/
     - Get all items
 - GET /items/random
     - Get a random item
-- GET /inventory/:playerGUID
-    - Get all inventory items belonging to given player GUID
+- GET /inventory/
+    - Get all inventory items belonging to the logged-in player (via a cookie)
 - DELETE /inventory/:id
     - Delete given instanced item (it is bound to a player automatically)
 - Post /player/

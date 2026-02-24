@@ -1,5 +1,6 @@
-
 # Website itself
+The different scenarios the website will experience, and the way those screens will be handled.
+
 ## Entry
 - The current player will be stored in a cookie
 - If a player cookie doesn't exist yet, the user will be redirected to a registration page

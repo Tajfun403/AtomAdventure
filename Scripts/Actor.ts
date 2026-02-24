@@ -15,6 +15,9 @@ export abstract class Actor {
     public MaxVelocity: number = 200;
     public ZIndex: number = 0;
     public World: World = null as any;
+    public Rotation: number = 0; // in degrees, 0 is facing right, positive is clockwise
+
+    // TODO handle rotation when actors move around!
 
     public constructor(backingDiv: HTMLDivElement | null = null) {
         this.BackingDiv = backingDiv;
@@ -74,5 +77,6 @@ export abstract class Actor {
         this.BackingDiv.style.backgroundImage = `url(${this.DisplayImgSrc})`;
         this.BackingDiv.style.display = this.bIsVisible ? "block" : "none";
         this.BackingDiv.style.zIndex = `${this.ZIndex}`;
+        this.BackingDiv.style.transform = `rotate(${this.Rotation}deg)`;
     }
 }

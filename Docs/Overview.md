@@ -18,3 +18,7 @@ Atom will be a simple, online 2d browser-based space shooter game, taking heavy 
 - Each killed enemy also gains you Prestige
 - Picked up items are merely thropies and can be sold for Prestige, or discarded
 - No player accounts, but the player will have to be able to rename themselves (assigment requirements).
+
+# Pages change
+- Full traversal to newsubpages through classic links cause delays, page blinking, and generally suboptimal experience, especially for games
+- Instead, I will pre-load the new site

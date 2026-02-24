@@ -1,14 +1,19 @@
 import { Router, Request, Response } from "express";
-import { PlayerItem } from "../Models/PlayerItem";
-import { Item } from "../Models/Item";
-import { Player } from "../Models/Player";
+import { PlayerItem } from "../Models/PlayerItem.js";
+import { Item } from "../Models/Item.js";
+import { Player } from "../Models/Player.js";
 
 export const inventoryRouter = Router();
 
-// GET /inventory/:playerGUID -- get all inventory entries for a player
-inventoryRouter.get("/:playerGUID", async (req: Request, res: Response) => {
+const COOKIE_NAME = "playerGUID";
+
+// GET /inventory -- get all inventory entries for the current player (GUID from cookie)
+inventoryRouter.get("/", async (req: Request, res: Response) => {
     try {
-        const playerGUID = req.params["playerGUID"] as string;
+        const playerGUID = req.cookies[COOKIE_NAME] as string | undefined;
+        if (!playerGUID) {
+            return res.status(401).json({ error: "No player cookie set." });
+        }
 
         const player = await Player.findByPk(playerGUID);
         if (!player) {
@@ -46,13 +51,17 @@ inventoryRouter.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
-// POST /inventory -- add an item to a player's inventory
+// POST /inventory -- add an item to the current player's inventory (GUID from cookie)
 inventoryRouter.post("/", async (req: Request, res: Response) => {
     try {
-        const { PlayerGUID, ItemID } = req.body as { PlayerGUID?: string; ItemID?: number };
+        const PlayerGUID = req.cookies[COOKIE_NAME] as string | undefined;
+        if (!PlayerGUID) {
+            return res.status(401).json({ error: "No player cookie set." });
+        }
 
-        if (!PlayerGUID || ItemID === undefined) {
-            return res.status(400).json({ error: "Necessary PlayerGUID and ItemID not passed." });
+        const { ItemID } = req.body as { ItemID?: number };
+        if (ItemID === undefined) {
+            return res.status(400).json({ error: "ItemID is required." });
         }
 
         const player = await Player.findByPk(PlayerGUID);

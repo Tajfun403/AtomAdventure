@@ -13,12 +13,19 @@ export class AIController extends Controller {
      * Route this actor towards the snapshotted player location.
      * @returns 
      */
-    protected RouteToPlayer() {
+    public RouteToPlayer() {
         this.PlayerRef = this.GetWorld().GetPlayerActor();
         if (!this.PlayerRef) return;
 
-        const deltaX = this.PlayerRef.Location[0] - this.Location[0];
-        const deltaY = this.PlayerRef.Location[1] - this.Location[1];
+        this.RouteTowardsLocation(this.PlayerRef.Location);
+    }
+
+    /**
+     * Snapshot the target location and route the pawn towards it in a continoues movement.
+     */
+    public RouteTowardsLocation(targetLocation: [number, number]) {
+        const deltaX = targetLocation[0] - this.Location[0];
+        const deltaY = targetLocation[1] - this.Location[1];
         const VSize = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         if (VSize > 0) {
             this.Direction[0] = deltaX / VSize;
