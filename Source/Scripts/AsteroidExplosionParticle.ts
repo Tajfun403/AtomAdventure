@@ -7,6 +7,6 @@ export class AsteroidExplosionParticle extends ParticleEffect {
 
     public constructor() {
         super();
-        this.DisplayImgSrc = "Assets/Images/AsteroidParts.webp?cachebuster=" + Math.random();
+        // this.DisplayImgSrc = "Assets/Images/AsteroidParts.webp?cachebuster=" + Math.random();
     }
 }

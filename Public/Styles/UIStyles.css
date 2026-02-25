@@ -192,6 +192,25 @@ body {
 .InventoryScroll {
   max-height: 300px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--soft-violet) transparent;
+}
+
+.InventoryScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.InventoryScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.InventoryScroll::-webkit-scrollbar-thumb {
+  background-color: var(--soft-violet);
+  border-radius: 3px;
+}
+
+.InventoryScroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--dark-violet);
 }
 
 .InventoryTable {
