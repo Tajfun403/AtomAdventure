@@ -19,7 +19,7 @@ export class PlayerController extends Controller {
 
     public MaxAcceleration: number = 1500;
 
-    public bHasEnabledCollision: boolean = true;
+    public bHasEnabledCollision: boolean = false;
 
     // TODO MAP INPUT AXES!
     // Via some function in the world itself...
@@ -34,7 +34,7 @@ export class PlayerController extends Controller {
         this.UpdateRotationTowardsMouse();
         this.printCounter += 1;
         if (this.printCounter % 60 === 0) {
-            console.log(this.PossesedPawn.GetMovingSummary());
+            // console.log(this.PossesedPawn.GetMovingSummary());
         }
 
         this.TryShoot();

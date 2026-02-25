@@ -1,4 +1,6 @@
 import { Actor } from "./Actor.js";
+import { Asteroid } from "./Asteroid.js";
+import { Projectile } from "./Projectile.js";
 import { Weapon } from "./Weapon.js";
 
 export class PlayerPawn extends Actor {
@@ -10,5 +12,16 @@ export class PlayerPawn extends Actor {
 
     public constructor() {
         super(null);
+    }
+
+    public OnTouch(other: Actor): void {
+        super.OnTouch(other);
+
+        // ignore self hits
+        if (other instanceof Projectile) return;
+        
+        if (other instanceof Asteroid) {
+            // TODO GAME OVER SCREEN!
+        }
     }
 }

@@ -21,6 +21,12 @@ export class Asteroid extends Actor {
         super.OnDestroyed();
     }
 
+    public OnTouch(other: Actor): void {
+        super.OnTouch(other);
+        if (!this.bHasEnabledCollision || !other.bHasEnabledCollision) return;
+        this.GetWorld().RemoveActorAnimated(this);
+    }
+
     public Tick(DeltaTime: number): void {
         super.Tick(DeltaTime);
         const player = this.GetWorld().GetPlayerActor();

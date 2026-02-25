@@ -88,14 +88,15 @@ export class World {
      */
     public RemoveActorAnimated(actor: Actor): void {
         if (actor.ToBeDestroyed) return;
-        actor.ToBeDestroyed = true;
 
         if (!actor.BackingDiv) {
             this.RemoveActorInstantly(actor);
             return;
         }
 
+        actor.ToBeDestroyed = true;
         actor.bHasEnabledCollision = false;
+        console.log(`Marking ${actor.Name} for delayed removal.`);
 
         // play a fade out animation, and then remove the actor from the world
         actor.BackingDiv.classList.remove("fade-in");
@@ -106,9 +107,12 @@ export class World {
     }
 
     public RemoveActorInstantly(actor: Actor): void {
-        if (actor.ToBeDestroyed) return;
+        if (actor.IsDestroyed) return;
         actor.ToBeDestroyed = true;
+        actor.IsDestroyed = true;
+        console.log(`Removing ${actor.Name}.`);
 
+        actor.OnDestroyed();
         const index = this.AllActors.indexOf(actor);
         if (index === -1)
             throw new Error("Trying to remove an actor that doesn't exist in the world!");

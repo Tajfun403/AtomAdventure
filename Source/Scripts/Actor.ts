@@ -25,6 +25,7 @@ export abstract class Actor {
 
     public AttachedActors: Actor[] = [];
     public ToBeDestroyed: boolean = false;
+    public IsDestroyed: boolean = false;
     public ColliderWidth: number = 50;
 
     public PossessedBy: Controller | null = null;
