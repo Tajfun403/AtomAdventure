@@ -32,5 +32,14 @@ Or no! Call it their PRESTIGE RATING. Done, no shop needed.
 
 Once the player kills enough entities, it will ask the server to serve it more.
 
+### Look
+Table:
+- Each row has:
+    - Small thumbnail of the item
+    - Name
+    - Value
+    - Sell button
+- Pressing the sell button will remove the item from the player's inventory, and then increment the player's prestige. 
+
 ## After death...
 Display some nice notification. Then, come back to the main screen.

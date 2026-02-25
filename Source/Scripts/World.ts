@@ -3,7 +3,7 @@ import { AIController } from "./AIController.js";
 import { Asteroid } from "./Asteroid.js";
 import { PlayerController } from "./PlayerController.js";
 import { PlayerPawn } from "./PlayerPawn.js";
-import { getPlayer } from "../API/PlayersAPI.js";
+import { getPlayer, addPrestige as serverAddPrestige } from "../API/PlayersAPI.js";
 import { WorldStuffSpawner } from "./WorldStuffSpawner.js";
 import { Vector } from "./Vector.js";
 import { Weapon } from "./Weapon.js";
@@ -135,6 +135,7 @@ export class World {
     public AddPrestige(amount: number): void {
         this.CurrentPrestige += amount;
         this.UpdatePrestige(this.CurrentPrestige);
+        serverAddPrestige(amount).catch(err => console.error('Failed to sync prestige to server:', err));
     }
 
     public UpdatePrestige(newCurrency: number): void {

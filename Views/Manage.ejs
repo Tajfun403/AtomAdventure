@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('Partials/Head.ejs') %>
+    <body>
+        <div class="MainContent">
+            <div class="FullCentering">
+                <div class="ManageCentering">
+                    <div id="UserNamePanel">
+                        <!-- Will let the user change their username here -->
+                        <div class="PlayerNameBanner" id="PlayerNotEditing">
+                        <!-- Horizontal flex -->
+                            <h1 class="Header" id="PlayerName">PlayerName</h1>
+                            <button class="Button RightAlign" id="BackToMenuButton">Change your name</button>
+                        </div>
+                        <div class="PlayerNameBanner" id="PlayerEditing">
+                            <input type="text" id="PlayerNameInput" class="Text InputTextBox" placeholder="Enter your name here..." />
+                            <button class="Button RightAlign" id="SavePlayerNameButton">Save</button>
+                        </div>
+                    </div>
+                    <div class="UIItem" id="Inventory">
+                        <!-- Make the entire  -->
+                        <div class="UIBar">
+                            <h2 class="Subtitle">Inventory</h2>
+                            <div class="EmptySpace"></div>
+                            <!-- Shows current prestige -->
+                            <h2 class="Label">Prestige: <span id="PrestigeValue">0</span></h2>
+                        </div>
+                        <div class="InventoryScroll">
+                            <!-- Empty state message -->
+                            <p class="Label" id="InventoryEmpty" style="display:none;">Your inventory is empty.</p>
+                            <!-- TABLE HERE -->
+                            <!-- Each row has:
+                                - Small thumbnail of the item
+                                - Name
+                                - Value
+                                - Sell button
+                                Pressing the sell button will remove the item from the player's inventory, and then increment the player's prestige. 
+                            -->
+                            <table id="InventoryTable" class="InventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="Label">Name</th>
+                                        <th class="Label">Value</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="InventoryBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button class="Button RightAlign" id="BackToGameBtn">Back to Game</button>
+                </div>
+            </div>
+            <!-- Only MainContent is replaced on page reload, so it needs to be here! -->
+            <script type="module">
+                import { WorldSpawner } from '/Scripts/WorldSpawner.js';
+                import { getPlayer, renamePlayer, addPrestige } from '/API/PlayersAPI.js';
+                import { GetInventory, DeleteInventoryEntry } from '/API/InventoryAPI.js';
+                WorldSpawner();
+
+                const playerNameEl = document.getElementById('PlayerName');
+                const playerNotEditing = document.getElementById('PlayerNotEditing');
+                const playerEditing = document.getElementById('PlayerEditing');
+                const changeNameBtn = document.getElementById('BackToMenuButton');
+                const saveNameBtn = document.getElementById('SavePlayerNameButton');
+                const nameInput = document.getElementById('PlayerNameInput');
+
+                // Start in view mode
+                playerEditing.style.display = 'none';
+                playerNotEditing.classList.add('fade-in');
+
+                function fadeOut(el, then) {
+                    el.classList.remove('fade-in');
+                    el.classList.add('fade-out');
+                    el.addEventListener('animationend', function handler() {
+                        el.removeEventListener('animationend', handler);
+                        el.classList.remove('fade-out');
+                        el.style.display = 'none';
+                        then();
+                    }, { once: true });
+                }
+
+                function fadeIn(el) {
+                    el.style.display = 'flex';
+                    el.classList.remove('fade-out');
+                    el.classList.add('fade-in');
+                }
+
+                const prestigeEl = document.getElementById('PrestigeValue');
+
+                // Load current player name + prestige
+                try {
+                    const player = await getPlayer();
+                    playerNameEl.textContent = player.Name;
+                    prestigeEl.textContent = player.Prestige;
+                } catch (err) {
+                    console.error('Failed to load player:', err);
+                }
+
+                // Inventory helpers
+                const inventoryBody = document.getElementById('InventoryBody');
+                const inventoryEmpty = document.getElementById('InventoryEmpty');
+                const inventoryTable = document.getElementById('InventoryTable');
+
+                function renderInventory(entries) {
+                    inventoryBody.innerHTML = '';
+                    if (entries.length === 0) {
+                        inventoryTable.style.display = 'none';
+                        inventoryEmpty.style.display = '';
+                        return;
+                    }
+                    inventoryTable.style.display = '';
+                    inventoryEmpty.style.display = 'none';
+                    for (const entry of entries) {
+                        const item = entry.Item;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><img class="ItemThumb" src="${item.Image}" alt="${item.PrettyName}" /></td>
+                            <td class="Label">${item.PrettyName}</td>
+                            <td class="Label">${item.Value}</td>
+                            <td><button class="Button SellButton" data-id="${entry.ID}" data-value="${item.Value}">Sell</button></td>
+                        `;
+                        inventoryBody.appendChild(tr);
+                    }
+                }
+
+                async function loadInventory() {
+                    try {
+                        const entries = await GetInventory();
+                        renderInventory(entries);
+                    } catch (err) {
+                        console.error('Failed to load inventory:', err);
+                    }
+                }
+
+                await loadInventory();
+
+                // Sell button delegation
+                inventoryBody.addEventListener('click', async (e) => {
+                    const btn = e.target.closest('.SellButton');
+                    if (!btn) return;
+                    btn.disabled = true;
+                    const id = parseInt(btn.dataset.id);
+                    const value = parseInt(btn.dataset.value);
+                    try {
+                        await DeleteInventoryEntry(id);
+                        await addPrestige(value);
+                        const player = await getPlayer();
+                        prestigeEl.textContent = player.Prestige;
+                        await loadInventory();
+                    } catch (err) {
+                        console.error('Failed to sell item:', err);
+                        btn.disabled = false;
+                    }
+                });
+
+                // Switch to edit mode
+                changeNameBtn.addEventListener('click', () => {
+                    nameInput.value = playerNameEl.textContent;
+                    fadeOut(playerNotEditing, () => fadeIn(playerEditing));
+                    nameInput.focus();
+                });
+
+                // Save new name
+                const doSave = async () => {
+                    const newName = nameInput.value.trim();
+                    if (!newName) return;
+                    saveNameBtn.disabled = true;
+                    try {
+                        const updated = await renamePlayer(newName);
+                        playerNameEl.textContent = updated.Name;
+                        fadeOut(playerEditing, () => fadeIn(playerNotEditing));
+                    } catch (err) {
+                        console.error('Failed to rename player:', err);
+                        alert('Failed to save name. Please try again.');
+                    } finally {
+                        saveNameBtn.disabled = false;
+                    }
+                };
+
+                saveNameBtn.addEventListener('click', doSave);
+                nameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') doSave();
+                });
+
+                // Back to game button
+                document.getElementById('BackToGameBtn').addEventListener('click', () => {
+                    TransitionToPage('/game');
+                });
+            </script>
+        </div>
+    <%- include('Partials/Scripts.ejs') %>
+    </body>
+</html>

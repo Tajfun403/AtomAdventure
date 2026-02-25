@@ -18,7 +18,6 @@ export class Projectile extends Actor {
     public OnTouch(other: Actor): void {
         // TODO play an explosion anim
         if (other instanceof PlayerPawn || other instanceof Pickupable) return;
-        if (!other.bHasEnabledCollision) return;
 
         if (other instanceof Asteroid)
             console.log("Hit an asteroid!");

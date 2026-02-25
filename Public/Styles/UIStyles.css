@@ -31,6 +31,13 @@ html, body {
   margin-bottom: 20px;
 }
 
+.Header {
+  font-family: 'ZenDots';
+  font-size: 32px;
+  color: #fff;
+  margin: 0;
+}
+
 body {
   background-color: #111;
   background-image: url('/Assets/StarsBg.png');
@@ -116,6 +123,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.ManageCentering {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 500px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -139,6 +153,22 @@ body {
   align-items: center;
 }
 
+.PlayerNameBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#UserNamePanel {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+#PlayerEditing {
+  margin-left: auto;
+}
+
 .EmptySpace {
   flex: 1;
 }
@@ -157,4 +187,32 @@ body {
   left: 0;
   width: 100%;
   padding: 10px;
+}
+
+.InventoryScroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.InventoryTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.InventoryTable th,
+.InventoryTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.InventoryTable tr:last-child td {
+  border-bottom: none;
+}
+
+.ItemThumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
 }

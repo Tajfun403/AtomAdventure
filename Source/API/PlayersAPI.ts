@@ -37,6 +37,27 @@ export async function addPrestige(amount: number): Promise<void> {
 }
 
 /**
+ * Rename the current player
+ * @param name - The new display name
+ * @returns Promise resolving to the updated player
+ */
+export async function renamePlayer(name: string): Promise<{ GUID: string; Name: string; Prestige: number }> {
+    const response = await fetch('/players', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ Name: name }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to rename player');
+    }
+
+    return response.json();
+}
+
+/**
  * Get the current player via their playerGUID cookie
  * @returns Promise resolving to the player object
  */
@@ -56,3 +77,4 @@ export async function getPlayer(): Promise<{ GUID: string; Name: string; Prestig
 (window as any).createPlayer = createPlayer;
 (window as any).addPrestige = addPrestige;
 (window as any).getPlayer = getPlayer;
+(window as any).renamePlayer = renamePlayer;

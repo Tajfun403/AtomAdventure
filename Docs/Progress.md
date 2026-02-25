@@ -21,7 +21,7 @@
 ## Frontend
 - ( ✔ ) Register page
 - ( ✔ ) Game page
-- (   ) Inventory managment page
+- ( ✔ ) Inventory managment page
 
 ## Assets
 - (   ) Player image
