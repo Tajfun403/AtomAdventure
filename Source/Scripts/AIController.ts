@@ -1,5 +1,6 @@
-import { Actor } from "./Actor";
-import { Controller } from "./Controller";
+import { Actor } from "./Actor.js";
+import { Controller } from "./Controller.js";
+import { Vector } from "./Vector.js";
 
 /**
  * AI Controller that will simply find the direction towards the player at spawn and will continue moving in that direction.
@@ -7,7 +8,7 @@ import { Controller } from "./Controller";
 export class AIController extends Controller {
     // TODO FILL THIS!
     protected PlayerRef: Actor | null = null;
-    protected Direction: [number, number] = [0, 0];
+    protected Direction: Vector = new Vector(0, 0);
 
     /**
      * Route this actor towards the snapshotted player location.
@@ -23,17 +24,10 @@ export class AIController extends Controller {
     /**
      * Snapshot the target location and route the pawn towards it in a continoues movement.
      */
-    public RouteTowardsLocation(targetLocation: [number, number]) {
-        const deltaX = targetLocation[0] - this.Location[0];
-        const deltaY = targetLocation[1] - this.Location[1];
-        const VSize = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        if (VSize > 0) {
-            this.Direction[0] = deltaX / VSize;
-            this.Direction[1] = deltaY / VSize;
-        }
-        
+    public RouteTowardsLocation(targetLocation: Vector) {
         if (!this.PossesedPawn) return;
-        this.PossesedPawn.Acceleration[0] = this.Direction[0] * this.MaxAcceleration;
-        this.PossesedPawn.Acceleration[1] = this.Direction[1] * this.MaxAcceleration;
+
+        this.Direction = targetLocation.Subtract(this.PossesedPawn.Location).Normal();
+        this.PossesedPawn.Acceleration = this.Direction.Multiply(this.MaxAcceleration);
     }
 }

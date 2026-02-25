@@ -2,6 +2,8 @@
     width: 100px;
     height: 100px;
     transition: box-shadow 0.3s ease;
+    background-size: cover;
+    background-position: center;
 }
 
 .Glowing {

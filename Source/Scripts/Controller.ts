@@ -1,4 +1,4 @@
-import { Actor } from "./Actor";
+import { Actor } from "./Actor.js";
 
 /**
  * Controller that can Posses an Actor / Pawn to take control of it.
@@ -14,5 +14,9 @@ export class Controller extends Actor {
 
     public SetPossessedPawn(pawn: Actor | null) {
         this.PossesedPawn = pawn;
+    }
+    
+    public Tick(DeltaTime: number): void {
+        super.Tick(DeltaTime);
     }
 }

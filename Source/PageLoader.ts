@@ -32,6 +32,17 @@ async function TransitionToPage(url: string) {
     await delay;
     content.innerHTML = newContent.innerHTML;
 
+    // innerHTML does not execute scripts -- re-create and append them manually
+    const scripts = Array.from(content.querySelectorAll("script"));
+    for (const oldScript of scripts) {
+        const newScript = document.createElement("script");
+        for (const attr of Array.from(oldScript.attributes)) {
+            newScript.setAttribute(attr.name, attr.value);
+        }
+        newScript.textContent = oldScript.textContent;
+        oldScript.replaceWith(newScript);
+    }
+
     content.classList.remove("fade-out");
     content.classList.add("fade-in");
 

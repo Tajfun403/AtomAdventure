@@ -1,6 +1,7 @@
 # Tables
 - Table: Players
     - GUID
+    - Name: string
     - Prestige: int
 - Table: Items
     - ID: int autoincrement

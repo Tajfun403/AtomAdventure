@@ -25,10 +25,12 @@
         textBox.addEventListener('input', () => {
             startButton.disabled = textBox.value.trim() === '';
         });
+        // first launch to account for an empty textbox
+        startButton.disabled = textBox.value.trim() === '';
 
         startButton.addEventListener('click', async () => {
             try {
-                await createPlayer();
+                await createPlayer(textBox.value.trim());
                 await TransitionToPage('/game');
             } catch (error) {
                 console.error('Error:', error);

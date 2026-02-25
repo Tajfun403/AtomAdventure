@@ -1,9 +1,13 @@
-import { Actor } from "./Actor";
+import { Actor } from "./Actor.js";
 
 export class Pickupable extends Actor {
     public ItemID: number = 0;
     public bIsGlowing: boolean = false;
     public glowDistance: number = 200;
+    public bIsVisible: boolean = true;
+    public bHasEnabledCollision: boolean = true;
+    public DisplayImgSrc: string = "Assets/Images/Papa.png";
+    public ZIndex: number = 50;
 
     /**
      * Set the glowing state of the Actor.
@@ -31,9 +35,7 @@ export class Pickupable extends Actor {
         const player = this.GetWorld().GetPlayerActor();
         if (!player) return;
 
-        const deltaX = player.Location[0] - this.Location[0];
-        const deltaY = player.Location[1] - this.Location[1];
-        const distanceToPlayer = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const distanceToPlayer = player.Location.Subtract(this.Location).VSize();
         this.SetGlowing(distanceToPlayer < this.glowDistance);
     }
 }

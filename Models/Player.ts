@@ -3,15 +3,17 @@ import { sequelize } from "./index";
 
 interface PlayerAttributes {
     GUID: string;
+    Name: string;
     Prestige: number;
 }
 
-// Both GUID and Prestige have defaults, so both are optional on creation
+// GUID and Prestige have defaults; Name is required on creation
 type PlayerCreationAttributes = Optional<PlayerAttributes, "GUID" | "Prestige">;
 
 export class Player extends Model<PlayerAttributes, PlayerCreationAttributes>
     implements PlayerAttributes {
     declare GUID: string;
+    declare Name: string;
     declare Prestige: number;
 }
 
@@ -21,6 +23,10 @@ Player.init(
             type: DataTypes.UUID,
             primaryKey: true,
             defaultValue: DataTypes.UUIDV4,
+        },
+        Name: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         Prestige: {
             type: DataTypes.INTEGER,

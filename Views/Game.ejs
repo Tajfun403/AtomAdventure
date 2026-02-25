@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('Partials/Head.ejs') %>
+    <body>
+        <div class="MainContent">
+            <div class="Playground">
+
+            </div>
+            <div class="UI">
+                <div class="UIBar Top" id="UpperUIBar">
+                    <div class="UIItem Label" id="PlayerName">PlayerName</div>
+                    <div class="EmptySpace"></div>
+                    <div class="UIItem Label" id="Currency">
+                        <div id="CurrencyCount"></div>
+                        <div id="CurrencyIcon"></div>
+                    </div>
+                </div>
+                <div class="UIBar Bottom" id="LowerUIBar">
+                    <div class="UIItem Label" id="Movement"><b>WASD</b> to Move</div>
+                    <div class="UIItem Label" id="Shoot"><b>LMB</b> to Shoot</div>
+                    <div class="EmptySpace"></div>
+                    <div class="UIItem Label" id="EToPickup"><b>E</b> to Pickup</div>
+                </div>
+            </div>
+            <!-- Only MainContent is replaced on page reload, so it needs to be here! -->
+            <script type="module">
+                import { WorldSpawner } from '/Scripts/WorldSpawner.js';
+                console.log("Game.ejs init script executing");
+                WorldSpawner();
+            </script>
+        </div>
+    <%- include('Partials/Scripts.ejs') %>
+    </body>
+</html>

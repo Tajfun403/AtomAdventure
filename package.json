@@ -4,7 +4,8 @@
     "description": "A simple 2D space shooter game w/ pickups & inventory managment.",
     "main": "dist/server.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && tsc -p tsconfig.client.json",
+        "build:watch": "tsc --watch & tsc -p tsconfig.client.json --watch",
         "start": "node dist/server.js",
         "dev": "ts-node server.ts"
     },

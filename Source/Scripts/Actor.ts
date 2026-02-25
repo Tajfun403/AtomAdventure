@@ -1,21 +1,28 @@
-import { World } from "./World";
+import { Weapon } from "./Weapon.js";
+import { World } from "./World.js";
+import { Vector } from "./Vector.js";
 
 /**
  * Base abstract class for all Actors that can be spawned in the Game World.
  */
 export abstract class Actor {
-    public Location: [number, number] = [0, 0];
+    public Location: Vector = new Vector(0, 0);
     public DisplayImgSrc: string = "";
     public bHasEnabledCollision: boolean = false;
-    public bIsVisible: boolean = true;
+    public bIsVisible: boolean = false;
     public BackingDiv: HTMLDivElement | null = null;
-    public Velocity: [number, number] = [0, 0];
-    public Acceleration: [number, number] = [0, 0];
+    public Velocity: Vector = new Vector(0, 0);
+    public Acceleration: Vector = new Vector(0, 0);
     public MaxAcceleration: number = 200;
     public MaxVelocity: number = 200;
     public ZIndex: number = 0;
     public World: World = null as any;
     public Rotation: number = 0; // in degrees, 0 is facing right, positive is clockwise
+    public Dimensions: [number, number] = [50, 50]; // width, height in pixels
+    public Name: string = "Default__Actor";
+    public Weapon: Weapon | null = null;
+
+    public AttachedActors: Actor[] = [];
 
     // TODO handle rotation when actors move around!
 
@@ -27,42 +34,60 @@ export abstract class Actor {
         return this.World;
     }
 
-    public Move(moveVector: [number, number]): void {
-        this.Location[0] += moveVector[0];
-        this.Location[1] += moveVector[1];
+    public Move(moveVector: Vector): void {
+        this.Location = this.Location.Add(moveVector);
+        for (const attachedActor of this.AttachedActors) {
+            attachedActor.Move(moveVector);
+        }
+    }
+
+    public GetMovingSummary(): string {
+        return `Loc (${this.Location.X.toFixed(2)}, ${this.Location.Y.toFixed(2)}), Vel (${this.Velocity.X.toFixed(2)}, ${this.Velocity.Y.toFixed(2)}), Accel (${this.Acceleration.X.toFixed(2)}, ${this.Acceleration.Y.toFixed(2)})`;
+    }
+
+    public LastInputTime: number = 0;
+    public TimeToFullSlowdown: number = 1.33;
+
+    public UpdateLocation(DeltaTime: number): void {
+        let innerAccelX = 0;
+        let innerAccelY = 0;
+
+        if (this.Acceleration.X !== 0 || this.Acceleration.Y !== 0) {
+            this.LastInputTime = this.GetWorld().GameTimeSeconds;
+        }
+
+        const timeSinceLastInput = this.GetWorld().GameTimeSeconds - this.LastInputTime;
+        const innerMaxVelocity = this.MaxVelocity * Math.max(0, 1 - timeSinceLastInput / this.TimeToFullSlowdown);
+
+        // Opposite accel to slow down
+        if (this.Acceleration.X === 0) {
+            if (this.Velocity.X > 0) innerAccelX = -this.MaxAcceleration;
+            else if (this.Velocity.X < 0) innerAccelX = this.MaxAcceleration;
+        }
+        if (this.Acceleration.Y === 0) {
+            if (this.Velocity.Y > 0) innerAccelY = -this.MaxAcceleration;
+            else if (this.Velocity.Y < 0) innerAccelY = this.MaxAcceleration;
+        }
+
+        if (Math.abs(innerAccelX) < 1) innerAccelX = 0;
+        if (Math.abs(innerAccelY) < 1) innerAccelY = 0;
+
+        this.Velocity = this.Velocity.Add(
+            this.Acceleration.Add(new Vector(innerAccelX, innerAccelY)).Multiply(DeltaTime)
+        );
+
+        // Clamp velocity by magnitude to prevent per-component distortion
+        const speed = this.Velocity.VSize();
+        if (speed > innerMaxVelocity && speed > 0) {
+            this.Velocity = this.Velocity.Normal().Multiply(innerMaxVelocity);
+        }
+
+        this.Move(this.Velocity.Multiply(DeltaTime));
     }
 
     public Tick(DeltaTime: number): void {
-        let innerAccel: [number, number] = [0, 0];
-
-        // Opposite accel to slow down
-        if (this.Acceleration[0] === 0) {
-            const actualVelX = this.Velocity[0];
-            if (actualVelX > 0) {
-                innerAccel[0] = -this.MaxAcceleration;
-            } else if (actualVelX < 0) {
-                innerAccel[0] = this.MaxAcceleration;
-            }
-        }
-
-        if (this.Acceleration[1] === 0) {
-            const actualVelY = this.Velocity[1];
-            if (actualVelY > 0) {
-                innerAccel[1] = -this.MaxAcceleration;
-            } else if (actualVelY < 0) {
-                innerAccel[1] = this.MaxAcceleration;
-            }
-        }
-
-        this.Velocity[0] += (this.Acceleration[0] + innerAccel[0]) * DeltaTime;
-        this.Velocity[1] += (this.Acceleration[1] + innerAccel[1]) * DeltaTime;
-
-        // Clamp velocity to max velocity
-        this.Velocity[0] = Math.max(-this.MaxVelocity, Math.min(this.MaxVelocity, this.Velocity[0]));
-        this.Velocity[1] = Math.max(-this.MaxVelocity, Math.min(this.MaxVelocity, this.Velocity[1]));
-
-        const locationDelta: [number, number] = [this.Velocity[0] * DeltaTime, this.Velocity[1] * DeltaTime];
-        this.Move(locationDelta);
+        this.UpdateLocation(DeltaTime);
+        this.UpdateBackingProps();
     }
 
     public OnTouch(other: Actor): void {
@@ -72,11 +97,33 @@ export abstract class Actor {
     public UpdateBackingProps(): void {
         if (!this.BackingDiv) return;
 
-        this.BackingDiv.style.left = `${this.Location[0]}px`;
-        this.BackingDiv.style.top = `${this.Location[1]}px`;
-        this.BackingDiv.style.backgroundImage = `url(${this.DisplayImgSrc})`;
+        // TODO props not all of them need to be updated all the time
+        this.BackingDiv.style.left = `${this.Location.X}px`;
+        this.BackingDiv.style.top = `${this.Location.Y}px`;
+        this.BackingDiv.style.backgroundImage = this.DisplayImgSrc ? `url('${this.DisplayImgSrc}')` : "";
+        this.BackingDiv.style.backgroundSize = "cover";
+        this.BackingDiv.style.width = `${this.Dimensions[0]}px`;
+        this.BackingDiv.style.height = `${this.Dimensions[1]}px`;
         this.BackingDiv.style.display = this.bIsVisible ? "block" : "none";
         this.BackingDiv.style.zIndex = `${this.ZIndex}`;
         this.BackingDiv.style.transform = `rotate(${this.Rotation}deg)`;
+    }
+
+    /**
+     * Attach an actor so that it follows this one.
+     */
+    public AttachActor(actor: Actor): void {
+        this.AttachedActors.push(actor);
+    }
+
+    /**
+     * Detach this actor.
+     * @param actor 
+     */
+    public DetachActor(actor: Actor): void {
+        const index = this.AttachedActors.indexOf(actor);
+        if (index !== -1) {
+            this.AttachedActors.splice(index, 1);
+        }
     }
 }

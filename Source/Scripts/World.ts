@@ -1,7 +1,12 @@
-import { Actor } from "./Actor";
-import { AIController } from "./AIController";
-import { Asteroid } from "./Asteroid";
-import { PlayerController } from "./PlayerController";
+import { Actor } from "./Actor.js";
+import { AIController } from "./AIController.js";
+import { Asteroid } from "./Asteroid.js";
+import { PlayerController } from "./PlayerController.js";
+import { PlayerPawn } from "./PlayerPawn.js";
+import { getPlayer } from "../API/PlayersAPI.js";
+import { WorldStuffSpawner } from "./WorldStuffSpawner.js";
+import { Vector } from "./Vector.js";
+import { Weapon } from "./Weapon.js";
 
 /**
  * World class is the bridge which both contains the entire world, and talks to the DOM to create new backing DIV objects.
@@ -10,44 +15,44 @@ export class World {
     public AllActors: Actor[] = [];
     public CurrentPlayerController: PlayerController | null = null;
     public RootHTMLElement: HTMLElement;
-    public SpawnItemsInMinRadius: number = 2000;
-    public SpawnItemsInMaxRadius: number = 4000;
+    public CurrentPrestige: number = 0;
+    public PlayerName: string = "Player";
+    public WorldStuffSpawnerRef: WorldStuffSpawner | null = null;
+    public GameTimeSeconds: number = 0;
+    public TotalInstancesPerClass: Map<string, number> = new Map();
 
     public constructor(rootElement: HTMLElement) {
         this.RootHTMLElement = rootElement;
     }
 
-    public FindNewSpawnLocation(): [number, number] {
-        const baseLoc = this.GetPlayerActor()?.Location || [0, 0];
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = this.SpawnItemsInMinRadius + Math.random() * (this.SpawnItemsInMaxRadius - this.SpawnItemsInMinRadius);
-        return [baseLoc[0] + Math.cos(angle) * radius, baseLoc[1] + Math.sin(angle) * radius];
-    }
-
-    public SpawnNewAsteroid(): Actor {
-        const newLoc = this.FindNewSpawnLocation();
-        const newAsteroid = new Asteroid();
-        newAsteroid.Location = newLoc
-        this.SpawnActor(newAsteroid);
-
-        const AIC = new AIController();
-        this.SpawnActor(AIC);
-        AIC.SetPossessedPawn(newAsteroid);
-        AIC.RouteToPlayer();
-        return newAsteroid;
-    }
-
     public Tick(DeltaTime: number) {
+        this.GameTimeSeconds += DeltaTime;
         for (const actor of this.AllActors) {
             actor.Tick(DeltaTime);
         }
+        this.CenterCamera();
     }
 
+    /**
+     * Spawn the actor in the world. This will create the associated DOM element, as well as set properties such as dimensions or the image which represents it.
+     * @param actor 
+     * @returns 
+     */
     public SpawnActor(actor: Actor): Actor {
+        // ue-like indices
+        const newIdx = (this.TotalInstancesPerClass.get(actor.constructor.name) || 0);
+        this.TotalInstancesPerClass.set(actor.constructor.name, newIdx + 1);
+
+        const myName = `${actor.constructor.name}_${newIdx}`;
+        actor.Name = myName;
+        console.log(`Spawning actor ${myName}`);
+
         actor.World = this;
         // spawn the backing div for the actor, and set it to the correct location and image
         const backingDiv = document.createElement("div");
+        backingDiv.classList.add("fade-in");
         backingDiv.style.position = "absolute";
+        backingDiv.id = myName;
         this.RootHTMLElement.appendChild(backingDiv);
         actor.BackingDiv = backingDiv;
         actor.UpdateBackingProps();
@@ -55,7 +60,26 @@ export class World {
         return actor;
     }
 
-    public RemoveActor(actor: Actor): void {
+    /**
+     * Remove the Actor from the world, but with a fade-out animation.
+     * @param 
+     * @returns 
+     */
+    public RemoveActorAnimated(actor: Actor): void {
+        if (!actor.BackingDiv) {
+            this.RemoveActorInstantly(actor);
+            return;
+        }
+
+        // play a fade out animation, and then remove the actor from the world
+        actor.BackingDiv.style.transition = "opacity 0.5s";
+        actor.BackingDiv.style.opacity = "0";
+        setTimeout(() => {
+            this.RemoveActorInstantly(actor);
+        }, 500);
+    }
+
+    public RemoveActorInstantly(actor: Actor): void {
         const index = this.AllActors.indexOf(actor);
         if (index === -1)
             throw new Error("Trying to remove an actor that doesn't exist in the world!");
@@ -72,7 +96,90 @@ export class World {
         return this.CurrentPlayerController.PossesedPawn;
     }
 
-    public GetCurrentPlayerController(): PlayerController | null {
-        return this.CurrentPlayerController;
+    public AddPrestige(amount: number): void {
+        this.CurrentPrestige += amount;
+        this.UpdatePrestige(this.CurrentPrestige);
+    }
+
+    public UpdatePrestige(newCurrency: number): void {
+        this.UpdateCurrencyDisplay(newCurrency);
+    }
+
+    public UpdateCurrencyDisplay(newCurrency: number): void {
+        const currencyDisplay = document.getElementById("CurrencyCount");
+        if (currencyDisplay) {
+            currencyDisplay.textContent = `${newCurrency}`;
+        }
+    }
+
+    public async InitServerVariables(): Promise<void> {
+        const player = await getPlayer();
+        console.log("Received player data from server: ", player);
+        this.PlayerName = player.Name;
+        this.CurrentPrestige = player.Prestige;
+        this.UpdatePrestige(this.CurrentPrestige);
+        
+        const playerEl = document.getElementById("PlayerName");
+        if (playerEl) playerEl.textContent = this.PlayerName;
+    }
+
+    /**
+     * Init the world.
+     */
+    public async InitWorld(): Promise<void> {
+        // Spawn the player in the middle of the world
+        const serverVarsPromise = this.InitServerVariables();
+        
+        const playerSpawnPromise = this.SpawnPlayer();
+        
+        const worldStuffSpawner = new WorldStuffSpawner();
+        this.WorldStuffSpawnerRef = worldStuffSpawner;
+        worldStuffSpawner.Location = new Vector(0, 0);
+        this.SpawnActor(worldStuffSpawner);
+
+        // spawn some initial asteroids
+        for (let i = 0; i < 5; i++) {
+            worldStuffSpawner.SpawnNewAsteroid();
+            worldStuffSpawner.SpawnRandomPickupable();
+        }
+
+        await serverVarsPromise;
+        await playerSpawnPromise;
+    }
+
+    /**
+     * Center the viewport over the player.
+     */
+    public CenterCamera(): void {
+        const player = this.GetPlayerActor();
+        if (!player) return;
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        const offsetX = viewportWidth / 2 - player.Location.X;
+        const offsetY = viewportHeight / 2 - player.Location.Y;
+
+        this.RootHTMLElement.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    }
+
+    /**
+     * Spawn the player pawn, along its controller and weapon.
+     */
+    public async SpawnPlayer(): Promise<void> {
+        const player = new PlayerPawn();
+        player.Location = new Vector(0, 0);
+        this.SpawnActor(player);
+
+        const playerController = new PlayerController();
+        this.CurrentPlayerController = playerController;
+        playerController.SetPossessedPawn(player);
+        playerController.SubscribeToInput();
+        this.SpawnActor(playerController);
+
+        const weapon = new Weapon();
+        player.Weapon = weapon;
+        this.SpawnActor(weapon);
+        player.AttachActor(weapon);
     }
 }

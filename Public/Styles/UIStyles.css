@@ -6,7 +6,9 @@
   --soft-violet: #b077e0;
   --dark-violet: #8954b6;
   --disabled-gray: #555;
+  color: #fff;
 }
+
 html, body {
   margin: 0;
   padding: 0;
@@ -92,7 +94,8 @@ body {
 
 
 .Label {
-
+  font-family: 'ZenDots';
+  font-size: 18px;
 }
 
 .FullCentering {
@@ -101,6 +104,16 @@ body {
   align-items: center;
   height: 100%;
   flex-direction: column;
+}
+
+.UIItem {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  margin: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 @keyframes fadeIn {
@@ -119,4 +132,29 @@ body {
 
 .fade-out {
   animation: fadeOut 0.5s forwards;
+}
+
+.UIBar {
+  display: flex;
+  align-items: center;
+}
+
+.EmptySpace {
+  flex: 1;
+}
+
+.Top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+}
+
+.Bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
 }
