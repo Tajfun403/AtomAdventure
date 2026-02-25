@@ -38,4 +38,8 @@ export class Pickupable extends Actor {
         const distanceToPlayer = player.Location.Subtract(this.Location).VSize();
         this.SetGlowing(distanceToPlayer < this.glowDistance);
     }
+
+    public OnBeingPickedUp(): void {
+        this.GetWorld().RemoveActorAnimated(this);
+    }
 }

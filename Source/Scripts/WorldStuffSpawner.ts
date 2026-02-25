@@ -7,8 +7,8 @@ import { getRandomItem } from '../API/ItemsAPI.js';
 import { Vector } from './Vector.js';
 
 export class WorldStuffSpawner extends Actor {
-    public SpawnItemsInMinRadius: number = 1000;
-    public SpawnItemsInMaxRadius: number = 3000;
+    public SpawnItemsInRadius: [number, number] = [1000, 2000];
+    public SpawnPickupableInRadius: [number, number] = [100, 2000];
     protected timeToSpawnAsteroid: number = 0;
     protected timeToSpawnPickupable: number = 0;
     protected asteroidSpawnRange: [number, number] = [1, 6];
@@ -35,10 +35,12 @@ export class WorldStuffSpawner extends Actor {
         }
     }
 
-    public FindNewSpawnLocation(): Vector {
+    public FindNewSpawnLocation(Pickupable: boolean = false): Vector {
         const baseLoc = this.GetWorld().GetPlayerActor()?.Location ?? new Vector(0, 0);
         const angle = Math.random() * 2 * Math.PI;
-        const radius = this.SpawnItemsInMinRadius + Math.random() * (this.SpawnItemsInMaxRadius - this.SpawnItemsInMinRadius);
+        const radius = Pickupable ? 
+            this.SpawnPickupableInRadius[0] + Math.random() * (this.SpawnPickupableInRadius[1] - this.SpawnPickupableInRadius[0]) :
+            this.SpawnItemsInRadius[0] + Math.random() * (this.SpawnItemsInRadius[1] - this.SpawnItemsInRadius[0]);
         return new Vector(baseLoc.X + Math.cos(angle) * radius, baseLoc.Y + Math.sin(angle) * radius);
     }
 
@@ -60,7 +62,7 @@ export class WorldStuffSpawner extends Actor {
         const pickupable = new Pickupable();
         pickupable.ItemID = item.ID;
         pickupable.DisplayImgSrc = item.Image;
-        pickupable.Location = this.FindNewSpawnLocation();
+        pickupable.Location = this.FindNewSpawnLocation(true);
         this.GetWorld().SpawnActor(pickupable);
         return pickupable;
     }

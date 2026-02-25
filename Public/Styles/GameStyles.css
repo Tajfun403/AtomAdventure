@@ -1,11 +1,14 @@
 .GameActor {
     width: 100px;
     height: 100px;
-    transition: box-shadow 0.3s ease;
+    transition: filter 0.3s ease;
     background-size: cover;
     background-position: center;
+    filter: drop-shadow(0 0 0px rgba(152, 76, 214, 0));
+    border-radius: 50%;
 }
 
 .Glowing {
-    box-shadow: 0 0 20px 60px rgba(152, 76, 214, 0.7);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 20px rgba(152, 76, 214, 1)) drop-shadow(0 0 6px rgba(152, 76, 214, 0.9));
 }

@@ -9,6 +9,7 @@ export class AIController extends Controller {
     // TODO FILL THIS!
     protected PlayerRef: Actor | null = null;
     protected Direction: Vector = new Vector(0, 0);
+    public bDieOnPossessedPawnDeath: boolean = true;
 
     /**
      * Route this actor towards the snapshotted player location.

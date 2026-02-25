@@ -17,6 +17,10 @@ export class PlayerController extends Controller {
 
     private bShouldBeShooting: boolean = false;
 
+    public MaxAcceleration: number = 1500;
+
+    public bHasEnabledCollision: boolean = true;
+
     // TODO MAP INPUT AXES!
     // Via some function in the world itself...
     public Tick(DeltaTime: number) {
@@ -49,6 +53,7 @@ export class PlayerController extends Controller {
 
             // TODO add this actor to the inventory and remove it from the world
             // make the respective call
+            asPickupable.OnBeingPickedUp();
             this.GetWorld().RemoveActorAnimated(asPickupable);
             AddInventoryEntry(asPickupable.ItemID).catch(console.error);
         }

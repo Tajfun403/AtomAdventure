@@ -27,10 +27,31 @@ export class World {
 
     public Tick(DeltaTime: number) {
         this.GameTimeSeconds += DeltaTime;
-        for (const actor of this.AllActors) {
+        for (const actor of [...this.AllActors]) {
             actor.Tick(DeltaTime);
         }
+        this.CheckCollisions();
         this.CenterCamera();
+    }
+
+    public CheckCollisions(): void {
+        const actors = this.AllActors;
+        for (let i = 0; i < actors.length; i++) {
+            const a = actors[i]!;
+            if (!a.bHasEnabledCollision) continue;
+
+            for (let j = i + 1; j < actors.length; j++) {
+                const b = actors[j]!;
+                if (!b.bHasEnabledCollision) continue;
+
+                const dist = a.Location.Subtract(b.Location).VSize();
+                const touchDist = (a.ColliderWidth + b.ColliderWidth) / 2;
+                if (dist < touchDist) {
+                    a.OnTouch(b);
+                    b.OnTouch(a);
+                }
+            }
+        }
     }
 
     /**
@@ -50,7 +71,7 @@ export class World {
         actor.World = this;
         // spawn the backing div for the actor, and set it to the correct location and image
         const backingDiv = document.createElement("div");
-        backingDiv.classList.add("fade-in");
+        backingDiv.classList.add("fade-in", "GameActor");
         backingDiv.style.position = "absolute";
         backingDiv.id = myName;
         this.RootHTMLElement.appendChild(backingDiv);
@@ -66,20 +87,28 @@ export class World {
      * @returns 
      */
     public RemoveActorAnimated(actor: Actor): void {
+        if (actor.ToBeDestroyed) return;
+        actor.ToBeDestroyed = true;
+
         if (!actor.BackingDiv) {
             this.RemoveActorInstantly(actor);
             return;
         }
 
+        actor.bHasEnabledCollision = false;
+
         // play a fade out animation, and then remove the actor from the world
-        actor.BackingDiv.style.transition = "opacity 0.5s";
-        actor.BackingDiv.style.opacity = "0";
+        actor.BackingDiv.classList.remove("fade-in");
+        actor.BackingDiv.classList.add("fade-out");
         setTimeout(() => {
             this.RemoveActorInstantly(actor);
         }, 500);
     }
 
     public RemoveActorInstantly(actor: Actor): void {
+        if (actor.ToBeDestroyed) return;
+        actor.ToBeDestroyed = true;
+
         const index = this.AllActors.indexOf(actor);
         if (index === -1)
             throw new Error("Trying to remove an actor that doesn't exist in the world!");
@@ -88,6 +117,9 @@ export class World {
         if (actor.BackingDiv) {
             this.RootHTMLElement.removeChild(actor.BackingDiv);
             actor.BackingDiv = null;
+        }
+        if (actor.PossessedBy && actor.PossessedBy.bDieOnPossessedPawnDeath) {
+            this.RemoveActorInstantly(actor.PossessedBy);
         }
     }
 

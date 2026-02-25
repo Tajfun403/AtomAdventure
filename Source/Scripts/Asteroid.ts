@@ -16,4 +16,19 @@ export class Asteroid extends Actor {
         this.Rotation = Math.random() * 360;
     }
     // TODO FILL THIS!
+
+    public OnDestroyed(): void {
+        super.OnDestroyed();
+    }
+
+    public Tick(DeltaTime: number): void {
+        super.Tick(DeltaTime);
+        const player = this.GetWorld().GetPlayerActor();
+        if (!player) return;
+
+        if (this.Location.Subtract(player.Location).VSize() > 5000) {
+            this.GetWorld().RemoveActorInstantly(this);
+            return;
+        }
+    }
 }

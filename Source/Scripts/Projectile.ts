@@ -1,4 +1,5 @@
 import { Actor } from "./Actor.js";
+import { Asteroid } from "./Asteroid.js";
 import { Pickupable } from "./Pickupable.js";
 import { PlayerPawn } from "./PlayerPawn.js";
 
@@ -18,7 +19,14 @@ export class Projectile extends Actor {
         // TODO play an explosion anim
         if (other instanceof PlayerPawn || other instanceof Pickupable) return;
         if (!other.bHasEnabledCollision) return;
-        this.World?.RemoveActorAnimated(this);
+
+        if (other instanceof Asteroid)
+            console.log("Hit an asteroid!");
+
+        this.World?.RemoveActorInstantly(this);
+        this.World?.RemoveActorAnimated(other);
+
+        this.GetWorld().AddPrestige(1);
 
         // TODO maybe just spawn an actor with a gif as its image, and then remove it a moment later on a timeout?
     }

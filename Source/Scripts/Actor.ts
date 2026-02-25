@@ -1,6 +1,7 @@
 import { Weapon } from "./Weapon.js";
 import { World } from "./World.js";
 import { Vector } from "./Vector.js";
+import { Controller } from "./Controller.js";
 
 /**
  * Base abstract class for all Actors that can be spawned in the Game World.
@@ -23,6 +24,10 @@ export abstract class Actor {
     public Weapon: Weapon | null = null;
 
     public AttachedActors: Actor[] = [];
+    public ToBeDestroyed: boolean = false;
+    public ColliderWidth: number = 50;
+
+    public PossessedBy: Controller | null = null;
 
     // TODO handle rotation when actors move around!
 
@@ -91,7 +96,10 @@ export abstract class Actor {
     }
 
     public OnTouch(other: Actor): void {
-
+        if (!this.bHasEnabledCollision || !other.bHasEnabledCollision) return;
+        if (this.ToBeDestroyed){
+            return;
+        }
     }
 
     public UpdateBackingProps(): void {
@@ -125,5 +133,9 @@ export abstract class Actor {
         if (index !== -1) {
             this.AttachedActors.splice(index, 1);
         }
+    }
+
+    public OnDestroyed(): void {
+
     }
 }

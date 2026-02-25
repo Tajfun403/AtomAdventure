@@ -5,6 +5,7 @@ import { Actor } from "./Actor.js";
  */
 export class Controller extends Actor {
     public PossesedPawn: Actor | null = null;
+    public bDieOnPossessedPawnDeath: boolean = false;
 
     public constructor() {
         super(null);
@@ -14,6 +15,9 @@ export class Controller extends Actor {
 
     public SetPossessedPawn(pawn: Actor | null) {
         this.PossesedPawn = pawn;
+        if (pawn) {
+            pawn.PossessedBy = this;
+        }
     }
     
     public Tick(DeltaTime: number): void {
