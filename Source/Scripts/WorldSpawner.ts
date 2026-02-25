@@ -14,11 +14,13 @@ export async function WorldSpawner(): Promise<World> {
     await world.InitWorld();
 
     world.OnPlayerDied = () => {
+        setTimeout(() => {
         const gameOverScreen = document.getElementById("GameOverMain") as HTMLDivElement;
         if (gameOverScreen) {
             gameOverScreen.style.display = "flex";
             gameOverScreen.classList.add("fade-in");
         }
+        }, 1000);
     }
 
     // requestAnimationFrame returns miliseconds,

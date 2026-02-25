@@ -245,8 +245,8 @@ export class World {
 
         setTimeout(() => {
             this.IsAlive = false;
-        }, 500);
-        
+        }, 1000);
+
         this.OnPlayerDied?.();
     }
 

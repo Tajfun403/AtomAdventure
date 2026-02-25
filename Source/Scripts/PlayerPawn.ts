@@ -1,5 +1,6 @@
 import { Actor } from "./Actor.js";
 import { Asteroid } from "./Asteroid.js";
+import { AsteroidExplosionParticle } from "./AsteroidExplosionParticle.js";
 import { Projectile } from "./Projectile.js";
 
 export class PlayerPawn extends Actor {
@@ -21,7 +22,13 @@ export class PlayerPawn extends Actor {
         
         if (other instanceof Asteroid) {
             // TODO GAME OVER SCREEN!
+            this.GetWorld().RemoveActorAnimated(this);
             this.GetWorld().GameOver();
+
+            // maybe give it a normal particle lol
+            const particle = new AsteroidExplosionParticle();
+            particle.Location = this.Location;
+            this.GetWorld().SpawnActor(particle);
         }
     }
 }
