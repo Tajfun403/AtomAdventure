@@ -10,4 +10,4 @@ To run the backend:
 ts-node Server.ts
 ```
 
-Usually runs on port 3000.
+Runs on port 3000. Also contains build profiles for VS Code.

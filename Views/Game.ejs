@@ -14,12 +14,22 @@
                         <div id="CurrencyCount"></div>
                         <div id="CurrencyIcon"></div>
                     </div>
+                    <div class="UIItem" id="ExitButton" onclick="TransitionToPage('/manage')">
+                        <img id="ExitButtonImg" src="/Assets/Images/Exit.png">
+                    </div>
                 </div>
                 <div class="UIBar Bottom" id="LowerUIBar">
                     <div class="UIItem Label" id="Movement"><b>WASD</b> to Move</div>
                     <div class="UIItem Label" id="Shoot"><b>LMB</b> to Shoot</div>
                     <div class="EmptySpace"></div>
                     <div class="UIItem Label" id="EToPickup"><b>E</b> to Pickup</div>
+                </div>
+                <div class="GameOverScreen FullCentering" id="GameOverMain">
+                    <h1 class="Header" id="GameOverTitle">You died!</h1>
+                    <div id="GameOverButtons">
+                        <button class="Button" id="RespawnButton" onclick="TransitionToPage('/game')">Respawn</button>
+                        <button class="Button" id="ManageInventoryButton" onclick="TransitionToPage('/manage')">Manage Inventory</button>
+                    </div>
                 </div>
             </div>
             <!-- Only MainContent is replaced on page reload, so it needs to be here! -->

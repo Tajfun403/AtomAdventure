@@ -1,7 +1,6 @@
 import { Actor } from "./Actor.js";
 import { Asteroid } from "./Asteroid.js";
 import { Projectile } from "./Projectile.js";
-import { Weapon } from "./Weapon.js";
 
 export class PlayerPawn extends Actor {
     public bIsVisible: boolean = true;
@@ -11,7 +10,7 @@ export class PlayerPawn extends Actor {
     // TODO FILL THIS SHIT
 
     public constructor() {
-        super(null);
+        super();
     }
 
     public OnTouch(other: Actor): void {
@@ -22,6 +21,7 @@ export class PlayerPawn extends Actor {
         
         if (other instanceof Asteroid) {
             // TODO GAME OVER SCREEN!
+            this.GetWorld().GameOver();
         }
     }
 }

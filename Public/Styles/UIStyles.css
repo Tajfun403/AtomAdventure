@@ -216,3 +216,44 @@ body {
   object-fit: cover;
   border-radius: 6px;
 }
+
+#ExitButton {
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#ExitButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+#ExitButtonImg {
+  width: 22px;
+  height: 22px;
+}
+
+.GameOver {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 100;
+}
+
+#GameOverButtons {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#GameOverMain {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 100;
+}

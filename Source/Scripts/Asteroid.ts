@@ -1,4 +1,5 @@
 import { Actor } from "./Actor.js";
+import { AsteroidExplosionParticle } from "./AsteroidExplosionParticle.js";
 
 export class Asteroid extends Actor {
     public bIsVisible: boolean = true;
@@ -10,8 +11,10 @@ export class Asteroid extends Actor {
 
     public MaxVelocityRange: [number, number] = [150, 400];
 
+    public bDestroyWhenAwayFromPlayer: boolean = true;
+
     public constructor() {
-        super(null);
+        super();
         this.MaxVelocity = this.MaxVelocityRange[0] + Math.random() * (this.MaxVelocityRange[1] - this.MaxVelocityRange[0]);
         this.Rotation = Math.random() * 360;
     }
@@ -19,6 +22,10 @@ export class Asteroid extends Actor {
 
     public OnDestroyed(): void {
         super.OnDestroyed();
+        if (this.IsDestroyed) return;
+        const particle = new AsteroidExplosionParticle();
+        particle.Location = this.Location;
+        this.GetWorld().SpawnActor(particle);
     }
 
     public OnTouch(other: Actor): void {
@@ -29,12 +36,5 @@ export class Asteroid extends Actor {
 
     public Tick(DeltaTime: number): void {
         super.Tick(DeltaTime);
-        const player = this.GetWorld().GetPlayerActor();
-        if (!player) return;
-
-        if (this.Location.Subtract(player.Location).VSize() > 5000) {
-            this.GetWorld().RemoveActorInstantly(this);
-            return;
-        }
     }
 }

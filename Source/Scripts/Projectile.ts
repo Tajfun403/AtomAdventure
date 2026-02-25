@@ -14,6 +14,7 @@ export class Projectile extends Actor {
     public Dimensions: [number, number] = [25, 25];
     public MaxVelocity: number = 800;
     public MaxAcceleration: number = 10000;
+    public bDestroyWhenAwayFromPlayer: boolean = true;
 
     public OnTouch(other: Actor): void {
         // TODO play an explosion anim
@@ -23,7 +24,8 @@ export class Projectile extends Actor {
             console.log("Hit an asteroid!");
 
         this.World?.RemoveActorInstantly(this);
-        this.World?.RemoveActorAnimated(other);
+        // this.World?.RemoveActorAnimated(other);
+        this.World?.RemoveActorInstantly(other);
 
         this.GetWorld().AddPrestige(1);
 

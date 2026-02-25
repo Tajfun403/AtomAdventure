@@ -11,7 +11,7 @@ export abstract class Actor {
     public DisplayImgSrc: string = "";
     public bHasEnabledCollision: boolean = false;
     public bIsVisible: boolean = false;
-    public BackingDiv: HTMLDivElement | null = null;
+    public BackingDiv?: HTMLDivElement | null = null;
     public Velocity: Vector = new Vector(0, 0);
     public Acceleration: Vector = new Vector(0, 0);
     public MaxAcceleration: number = 200;
@@ -29,11 +29,12 @@ export abstract class Actor {
     public ColliderWidth: number = 50;
 
     public PossessedBy: Controller | null = null;
+    public bDestroyWhenAwayFromPlayer: boolean = false;
+    public MaxDistanceFromPlayer: number = 5000;
 
     // TODO handle rotation when actors move around!
 
-    public constructor(backingDiv: HTMLDivElement | null = null) {
-        this.BackingDiv = backingDiv;
+    public constructor() {
     }
 
     public GetWorld(): World {
@@ -93,7 +94,8 @@ export abstract class Actor {
 
     public Tick(DeltaTime: number): void {
         this.UpdateLocation(DeltaTime);
-        this.UpdateBackingProps();
+        this.PartialUpdateBackingProps();
+        this.DestroyWhenAwayFromPlayer();
     }
 
     public OnTouch(other: Actor): void {
@@ -103,19 +105,37 @@ export abstract class Actor {
         }
     }
 
+    /**
+     * Update all derivative props.
+     */
     public UpdateBackingProps(): void {
         if (!this.BackingDiv) return;
 
         // TODO props not all of them need to be updated all the time
-        this.BackingDiv.style.left = `${this.Location.X}px`;
-        this.BackingDiv.style.top = `${this.Location.Y}px`;
-        this.BackingDiv.style.backgroundImage = this.DisplayImgSrc ? `url('${this.DisplayImgSrc}')` : "";
-        this.BackingDiv.style.backgroundSize = "cover";
+        this.BackingDiv.style.left = `${this.Location.X - this.Dimensions[0] / 2}px`;
+        this.BackingDiv.style.top = `${this.Location.Y - this.Dimensions[1] / 2}px`;
         this.BackingDiv.style.width = `${this.Dimensions[0]}px`;
         this.BackingDiv.style.height = `${this.Dimensions[1]}px`;
         this.BackingDiv.style.display = this.bIsVisible ? "block" : "none";
         this.BackingDiv.style.zIndex = `${this.ZIndex}`;
         this.BackingDiv.style.transform = `rotate(${this.Rotation}deg)`;
+
+        const imgDiv = this.BackingDiv.querySelector(".ActorImage") as HTMLImageElement | null;
+        if (imgDiv) {
+            imgDiv.src = this.DisplayImgSrc ?? "";
+        }
+    }
+
+    /**
+     * Update only the properties that realistically change often enough.
+     */
+    public PartialUpdateBackingProps(){
+        if (!this.BackingDiv) return;
+
+        this.BackingDiv.style.left = `${this.Location.X - this.Dimensions[0] / 2}px`;
+        this.BackingDiv.style.top = `${this.Location.Y - this.Dimensions[1] / 2}px`;
+        this.BackingDiv.style.transform = `rotate(${this.Rotation}deg)`;
+        this.BackingDiv.style.display = this.bIsVisible ? "block" : "none";
     }
 
     /**
@@ -138,5 +158,20 @@ export abstract class Actor {
 
     public OnDestroyed(): void {
 
+    }
+
+    /**
+     * Destroy the actor if `this.bDestroyWhenAwayFromPlayer === true` and the player is too far away.
+     * @returns 
+     */
+    public DestroyWhenAwayFromPlayer(): void {
+        if (!this.bDestroyWhenAwayFromPlayer) return;
+        const player = this.GetWorld().GetPlayerActor();
+        if (!player) return;
+
+        if (this.Location.Subtract(player.Location).VSize() > this.MaxDistanceFromPlayer) {
+            this.GetWorld().RemoveActorInstantly(this);
+            return;
+        }
     }
 }

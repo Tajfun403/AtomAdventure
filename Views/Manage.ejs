@@ -159,8 +159,13 @@
                 // Switch to edit mode
                 changeNameBtn.addEventListener('click', () => {
                     nameInput.value = playerNameEl.textContent;
+                    saveNameBtn.disabled = nameInput.value.trim() === '';
                     fadeOut(playerNotEditing, () => fadeIn(playerEditing));
                     nameInput.focus();
+                });
+
+                nameInput.addEventListener('input', () => {
+                    saveNameBtn.disabled = nameInput.value.trim() === '';
                 });
 
                 // Save new name

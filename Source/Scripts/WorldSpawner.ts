@@ -6,7 +6,20 @@ export async function WorldSpawner(): Promise<World> {
     const playground = document.querySelector(".Playground") as HTMLElement;
     const world = new World(playground);
 
+    const gameOverScreen = document.getElementById("GameOverScreen") as HTMLDivElement;
+    if (gameOverScreen) {
+        gameOverScreen.style.display = "none";
+    }
+
     await world.InitWorld();
+
+    world.OnPlayerDied = () => {
+        const gameOverScreen = document.getElementById("GameOverMain") as HTMLDivElement;
+        if (gameOverScreen) {
+            gameOverScreen.style.display = "flex";
+            gameOverScreen.classList.add("fade-in");
+        }
+    }
 
     // requestAnimationFrame returns miliseconds,
     // while the entire game assumes seconds!

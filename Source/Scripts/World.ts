@@ -13,21 +13,24 @@ import { Weapon } from "./Weapon.js";
  */
 export class World {
     public AllActors: Actor[] = [];
-    public CurrentPlayerController: PlayerController | null = null;
+    public CurrentPlayerController?: PlayerController;
     public RootHTMLElement: HTMLElement;
     public CurrentPrestige: number = 0;
     public PlayerName: string = "Player";
-    public WorldStuffSpawnerRef: WorldStuffSpawner | null = null;
+    public WorldStuffSpawnerRef?: WorldStuffSpawner;
     public GameTimeSeconds: number = 0;
     public TotalInstancesPerClass: Map<string, number> = new Map();
+    public IsAlive: boolean = true;
 
     public constructor(rootElement: HTMLElement) {
         this.RootHTMLElement = rootElement;
     }
 
     public Tick(DeltaTime: number) {
+        if (!this.IsAlive) return;
+
         this.GameTimeSeconds += DeltaTime;
-        for (const actor of [...this.AllActors]) {
+        for (const actor of this.AllActors) {
             actor.Tick(DeltaTime);
         }
         this.CheckCollisions();
@@ -70,15 +73,32 @@ export class World {
 
         actor.World = this;
         // spawn the backing div for the actor, and set it to the correct location and image
-        const backingDiv = document.createElement("div");
-        backingDiv.classList.add("fade-in", "GameActor");
-        backingDiv.style.position = "absolute";
+        const backingDiv = this.CreateBackingDiv();
         backingDiv.id = myName;
+
         this.RootHTMLElement.appendChild(backingDiv);
         actor.BackingDiv = backingDiv;
         actor.UpdateBackingProps();
         this.AllActors.push(actor);
+
+        actor.UpdateBackingProps();
         return actor;
+    }
+
+    protected CreateBackingDiv(): HTMLDivElement {
+        const backingDiv = document.createElement("div");
+        backingDiv.classList.add("fade-in", "GameActor");
+        backingDiv.style.position = "absolute";
+        backingDiv.style.userSelect = "none";
+        backingDiv.style.pointerEvents = "none";
+
+        const imgChild = document.createElement("img");
+        imgChild.classList.add("ActorImage");
+        imgChild.style.width = "100%";
+        imgChild.style.height = "100%";
+        imgChild.style.objectFit = "cover";
+        backingDiv.appendChild(imgChild);
+        return backingDiv;
     }
 
     /**
@@ -108,11 +128,11 @@ export class World {
 
     public RemoveActorInstantly(actor: Actor): void {
         if (actor.IsDestroyed) return;
-        actor.ToBeDestroyed = true;
-        actor.IsDestroyed = true;
         console.log(`Removing ${actor.Name}.`);
 
         actor.OnDestroyed();
+        actor.ToBeDestroyed = true;
+        actor.IsDestroyed = true;
         const index = this.AllActors.indexOf(actor);
         if (index === -1)
             throw new Error("Trying to remove an actor that doesn't exist in the world!");
@@ -219,4 +239,16 @@ export class World {
         this.SpawnActor(weapon);
         player.AttachActor(weapon);
     }
+
+    public GameOver(): void {
+        console.log("===== Game over triggered! =====");
+
+        setTimeout(() => {
+            this.IsAlive = false;
+        }, 500);
+        
+        this.OnPlayerDied?.();
+    }
+
+    public OnPlayerDied?: () => void;
 }

@@ -8,7 +8,7 @@ export class Controller extends Actor {
     public bDieOnPossessedPawnDeath: boolean = false;
 
     public constructor() {
-        super(null);
+        super();
         this.bIsVisible = false;
         this.bHasEnabledCollision = false;
     }
